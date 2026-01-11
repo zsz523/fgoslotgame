@@ -1,0 +1,13 @@
+node_modules/
+client/node_modules/
+server/node_modules/
+client/build/
+*.log
+.DS_Store
+.env
+dist/
+
+# 图像文件（如果不想提交到git，可以取消注释）
+# client/public/images/**/*.png
+# client/public/images/**/*.jpg
+# client/public/images/**/*.jpeg
