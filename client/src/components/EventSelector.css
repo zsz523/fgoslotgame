@@ -1,0 +1,123 @@
+.event-selector-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.event-selector-modal {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: white;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.event-selector-modal h2 {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.event-hint {
+  text-align: center;
+  opacity: 0.9;
+  margin-bottom: 25px;
+  font-size: 16px;
+}
+
+.events-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.event-card {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-card:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.event-type-badge {
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0.9;
+  text-align: center;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.event-symbol {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #ffd700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.event-description {
+  font-size: 14px;
+  text-align: center;
+  opacity: 0.9;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.btn-select-event {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: auto;
+}
+
+.btn-select-event:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .events-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .event-selector-modal {
+    padding: 20px;
+  }
+  
+  .event-selector-modal h2 {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,17 @@
+.App {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 24px;
+  color: white;
+}
+
+.error {
+  color: #ff6b6b;
+}
