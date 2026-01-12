@@ -3,15 +3,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-page::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(102, 126, 234, 0.2) 0%, transparent 50%);
+  animation: rotate 30s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .start-content {
   text-align: center;
-  max-width: 800px;
+  max-width: 900px;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .game-title {
@@ -33,20 +59,163 @@
   font-size: 24px;
   font-weight: bold;
   border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  margin-bottom: 60px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.btn-start::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.btn-start:hover::before {
+  left: 100%;
+}
+
+.btn-start:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.25) 100%);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-secondary {
+  padding: 15px 40px;
+  font-size: 20px;
+  font-weight: bold;
+  border: none;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   cursor: pointer;
   transition: all 0.3s;
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.3);
+  margin-right: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+.mode-selection {
   margin-bottom: 60px;
 }
 
-.btn-start:hover {
-  background: rgba(255, 255, 255, 0.3);
+.mode-title {
+  font-size: 32px;
+  margin-bottom: 40px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mode-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.mode-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 40px 30px;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+  color: white;
+  text-align: center;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-5px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.mode-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.mode-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.mode-desc {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.ethereum-mode {
+  border-color: rgba(98, 189, 252, 0.5);
+}
+
+.ethereum-mode:hover {
+  border-color: rgba(98, 189, 252, 0.8);
+  background: rgba(98, 189, 252, 0.1);
+}
+
+.mode-confirmed {
+  margin-bottom: 60px;
+}
+
+.selected-mode {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.mode-icon-large {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.selected-mode h2 {
+  font-size: 32px;
+  margin-bottom: 15px;
+}
+
+.selected-mode p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  z-index: 10;
 }
 
 .game-features {

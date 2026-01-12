@@ -27,20 +27,28 @@ function SymbolProbabilityPanel({ probabilities }) {
         {Object.entries(probabilities).map(([symbolId, data]) => (
           <div key={symbolId} className={`symbol-item ${data.isNegative ? 'negative' : ''}`}>
             <div className="symbol-header">
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <img 
-                  src={getSymbolImage(symbolId)} 
-                  alt={SYMBOL_NAMES[symbolId] || symbolId}
-                  className="symbol-image"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-                <div className="symbol-icon" style={{ display: 'none' }}>
-                  {symbolId.charAt(0).toUpperCase()}
+              <div className="symbol-header-left">
+                <div className="symbol-image-wrapper">
+                  <img 
+                    src={getSymbolImage(symbolId)} 
+                    alt={SYMBOL_NAMES[symbolId] || symbolId}
+                    className="symbol-image"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="symbol-icon" style={{ display: 'none' }}>
+                    {symbolId.charAt(0).toUpperCase()}
+                  </div>
                 </div>
-                <span className="symbol-name">{SYMBOL_NAMES[symbolId] || symbolId}</span>
+                <div className="symbol-name-wrapper">
+                  <span className="symbol-name">{SYMBOL_NAMES[symbolId] || symbolId}</span>
+                  <div className="weight-badge">
+                    <span className="weight-label">权重</span>
+                    <span className="weight-value">{data.weight.toFixed(2)}</span>
+                  </div>
+                </div>
               </div>
               {data.isNegative && <span className="negative-badge">扣分</span>}
             </div>
@@ -52,10 +60,6 @@ function SymbolProbabilityPanel({ probabilities }) {
               <div className="stat-row">
                 <span className="stat-label">倍率:</span>
                 <span className="stat-value">{data.value.toLocaleString()}</span>
-              </div>
-              <div className="stat-row">
-                <span className="stat-label">权重:</span>
-                <span className="stat-value">{data.weight.toFixed(2)}</span>
               </div>
             </div>
           </div>

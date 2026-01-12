@@ -1,11 +1,45 @@
+# 依赖目录
 node_modules/
 client/node_modules/
 server/node_modules/
+contracts/node_modules/
+
+# 构建产物
 client/build/
-*.log
-.DS_Store
-.env
 dist/
+contracts/artifacts/
+contracts/cache/
+
+# 环境变量和敏感配置（⚠️ 包含私钥和API密钥）
+.env
+.env.local
+.env.*.local
+contracts/.env
+server/.env
+client/.env
+*.env
+
+# 日志文件
+*.log
+logs/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE 配置
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
 
 # 图像文件（如果不想提交到git，可以取消注释）
 # client/public/images/**/*.png

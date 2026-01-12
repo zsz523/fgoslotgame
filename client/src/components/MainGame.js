@@ -4,12 +4,14 @@ import axios from 'axios';
 import SymbolProbabilityPanel from './SymbolProbabilityPanel';
 import ServantManager from './ServantManager';
 import TurnSelector from './TurnSelector';
+import ProgressBar from './ProgressBar';
 import { getCurrencyImage } from '../utils/imagePaths';
+import { getAdjustedTarget } from '../utils/gameUtils';
 import './MainGame.css';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
-function MainGame({ sessionId, gameState, probabilities, onUpdate }) {
+function MainGame({ sessionId, gameState, probabilities, onUpdate, gameMode, walletInfo }) {
   const navigate = useNavigate();
   const [localGameState, setLocalGameState] = useState(gameState);
   const [localProbabilities, setLocalProbabilities] = useState(probabilities);
@@ -18,6 +20,7 @@ function MainGame({ sessionId, gameState, probabilities, onUpdate }) {
   const [pendingEvents, setPendingEvents] = useState(null);
   const [autoStartTriggered, setAutoStartTriggered] = useState(false);
   const [autoRoundStartTriggered, setAutoRoundStartTriggered] = useState(false);
+  const [isFinishingGame, setIsFinishingGame] = useState(false);
 
   useEffect(() => {
     // 同步父组件传入的状态到本地状态
@@ -278,6 +281,24 @@ function MainGame({ sessionId, gameState, probabilities, onUpdate }) {
     }
   };
 
+  const handleFinishGame = async () => {
+    if (!window.confirm('确定要完成游戏并提取奖励吗？继续游戏可能会失败并失去奖励。')) {
+      return;
+    }
+
+    setIsFinishingGame(true);
+    try {
+      // 调用完成游戏接口
+      await axios.post(`${API_BASE_URL}/game/${sessionId}/game/complete`);
+      // 跳转到游戏结束页面
+      navigate('/gameover');
+    } catch (error) {
+      console.error('完成游戏失败:', error);
+      alert('完成游戏失败，请重试');
+      setIsFinishingGame(false);
+    }
+  };
+
   const checkGameOver = () => {
     if (!localGameState) return false;
     const minCost = 3000 * localGameState.level;
@@ -291,33 +312,70 @@ function MainGame({ sessionId, gameState, probabilities, onUpdate }) {
   }, [localGameState, navigate]);
 
   if (!localGameState) {
-    return <div>加载中...</div>;
+    return <div className="loading-screen">加载中...</div>;
   }
+
+  // 检查是否有始皇帝从者（降低目标25%）
+  const hasQinShiHuang = localGameState.activeServants?.some(s => s.id === 'qin_shi_huang') || false;
+  const currentTarget = getAdjustedTarget(localGameState.level, hasQinShiHuang);
 
   return (
     <div className="main-game">
+      {/* 加载遮罩 */}
+      {isFinishingGame && (
+        <div className="loading-overlay">
+          <div className="loading-content">
+            <div className="loading-spinner"></div>
+            <p>正在处理奖励支付...</p>
+            <p className="loading-hint">请稍候，不要关闭页面</p>
+          </div>
+        </div>
+      )}
       <div className="game-header">
-        <h1>FGO老虎机链游</h1>
+        <h1 className="game-title-main">FGO老虎机链游</h1>
+        
+        {/* 进度条 */}
+        <div className="progress-section">
+          <ProgressBar 
+            current={localGameState.quantum} 
+            target={currentTarget}
+            label={`第 ${localGameState.level} 轮目标`}
+          />
+        </div>
+
         <div className="stats">
-          <div className="stat-item">
+          <div className="stat-item stat-item-glow">
             <img src={getCurrencyImage('quantum')} alt="量子" className="currency-icon" />
             <span className="stat-label">量子:</span>
             <span className="stat-value">{localGameState.quantum.toLocaleString()}</span>
           </div>
-          <div className="stat-item">
+          <div className="stat-item stat-item-glow">
             <img src={getCurrencyImage('saintQuartz')} alt="圣晶石" className="currency-icon" />
             <span className="stat-label">圣晶石:</span>
             <span className="stat-value">{localGameState.saintQuartz}</span>
           </div>
-          <div className="stat-item">
+          <div className="stat-item stat-item-glow">
             <span className="stat-label">轮数:</span>
             <span className="stat-value">{localGameState.level}</span>
           </div>
-          <div className="stat-item">
+          <div className="stat-item stat-item-glow">
             <span className="stat-label">回合:</span>
             <span className="stat-value">{localGameState.round}/{localGameState.maxRounds}</span>
           </div>
         </div>
+
+        {/* 完成游戏并提取奖励按钮（仅在以太坊模式且游戏进行中显示） */}
+        {gameMode === 'ethereum' && localGameState.level > 0 && (
+          <div className="finish-game-section">
+            <button 
+              className="btn-finish-game"
+              onClick={handleFinishGame}
+              disabled={isFinishingGame}
+            >
+              {isFinishingGame ? '处理中...' : '完成游戏并提取奖励'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 选择区域（事件选择 + 回合操作选择）- 放在顶部醒目位置 */}

@@ -425,9 +425,172 @@ class GameState {
     return this.activeServants.some(s => s.id === servantId);
   }
 
+  // 撤销从者效果（用于下场）
+  removeServantEffect(servant) {
+    switch (servant.effectType) {
+      case 'quantum_double':
+        // 检查是否还有其他BB从者
+        const hasOtherBB = this.activeServants.some(s => s.id !== servant.id && s.effectType === 'quantum_double');
+        if (!hasOtherBB) {
+          this.hasBB = false;
+          console.log(`    [技能撤销] BB: 所有量子翻倍效果已撤销`);
+        }
+        break;
+      case 'symbol_boost':
+        if (servant.symbolType) {
+          const state = this.symbolStates[servant.symbolType];
+          if (state) {
+            const valueBefore = state.currentValue;
+            const weightBefore = state.currentWeight;
+            // 撤销加成
+            state.currentValue -= state.baseValue * servant.valueMultiplier;
+            state.currentWeight -= state.baseWeight * servant.weightMultiplier;
+            // 确保不会变成负数
+            state.currentValue = Math.max(state.baseValue, state.currentValue);
+            state.currentWeight = Math.max(state.baseWeight, state.currentWeight);
+            console.log(`    [技能撤销] ${servant.name}: ${servant.symbolType}图像加成已撤销`);
+            console.log(`      倍率: ${valueBefore.toLocaleString()} → ${state.currentValue.toLocaleString()} (${state.currentValue - valueBefore > 0 ? '+' : ''}${(state.currentValue - valueBefore).toLocaleString()})`);
+            console.log(`      权重: ${weightBefore.toFixed(2)} → ${state.currentWeight.toFixed(2)} (${state.currentWeight - weightBefore > 0 ? '+' : ''}${(state.currentWeight - weightBefore).toFixed(2)})`);
+          }
+        }
+        break;
+      case 'negative_symbol_reduce':
+        const solomon = this.symbolStates['solomon'];
+        if (solomon) {
+          // 撤销削弱效果（恢复原值）
+          const valueBefore = solomon.currentValue;
+          const weightBefore = solomon.currentWeight;
+          // 反向计算：如果原来是 currentValue = baseValue * (1 + multiplier)，那么恢复为 baseValue
+          // 但这里我们简化处理：直接恢复到基础值（因为可能有多个从者叠加）
+          // 更准确的做法是记录每个从者的贡献，但为了简化，我们只撤销当前从者的影响
+          solomon.currentValue = Math.max(0, solomon.currentValue / (1 + servant.valueMultiplier));
+          solomon.currentWeight = Math.max(0, solomon.currentWeight / (1 + servant.weightMultiplier));
+          console.log(`    [技能撤销] ${servant.name}: 扣分图像削弱效果已撤销`);
+          console.log(`      倍率: ${valueBefore.toLocaleString()} → ${solomon.currentValue.toLocaleString()} (${solomon.currentValue - valueBefore > 0 ? '+' : ''}${(solomon.currentValue - valueBefore).toLocaleString()})`);
+          console.log(`      权重: ${weightBefore.toFixed(2)} → ${solomon.currentWeight.toFixed(2)} (${solomon.currentWeight - weightBefore > 0 ? '+' : ''}${(solomon.currentWeight - weightBefore).toFixed(2)})`);
+        }
+        break;
+      case 'immune_negative':
+        // 检查是否还有其他王哈桑从者
+        const hasOtherKingHassan = this.activeServants.some(s => s.id !== servant.id && s.effectType === 'immune_negative');
+        if (!hasOtherKingHassan) {
+          this.hasKingHassan = false;
+          console.log(`    [技能撤销] 王哈桑: 免疫扣分效果已撤销`);
+        }
+        break;
+      case 'disable_negative':
+        // 检查是否还有其他亚瑟从者
+        const hasOtherArthur = this.activeServants.some(s => s.id !== servant.id && s.effectType === 'disable_negative');
+        if (!hasOtherArthur) {
+          this.hasArthur = false;
+          console.log(`    [技能撤销] 亚瑟: 禁用扣分效果已撤销`);
+        }
+        break;
+      case 'oberon_effect':
+        // 检查是否还有其他奥博龙从者
+        const hasOtherOberon = this.activeServants.some(s => s.id !== servant.id && s.effectType === 'oberon_effect');
+        if (!hasOtherOberon) {
+          this.hasOberon = false;
+          this.oberonApplied = false;
+          console.log(`    [技能撤销] 奥博龙: 回合开始-50%，回合结束+200%效果已撤销`);
+        }
+        break;
+      case 'permanent_price_reduction':
+        // 永久价格减免不应该撤销（这是永久效果）
+        // 但为了完整性，我们仍然记录日志
+        console.log(`    [技能撤销] ${servant.name}: 从者价格永久减免效果（永久效果，不撤销）`);
+        break;
+      case 'auto_pattern':
+        // 自动形状效果在回合开始时应用，不需要撤销
+        console.log(`    [技能撤销] ${servant.name}: 自动形状效果（回合效果，不撤销）`);
+        break;
+      // 一次性从者（refresh_shop, random_servant等）已经在applyServantEffect中自动移除，不需要处理
+      default:
+        console.log(`    [技能撤销] ${servant.name}: 效果类型 ${servant.effectType} 无需撤销或已自动处理`);
+        break;
+    }
+  }
+
+  // 从者下场（从出战栏移回仓库）
+  deactivateServant(servantId) {
+    console.log(`\n[从者下场] 尝试让从者下场: ${servantId}`);
+    console.log(`  当前出战从者数: ${this.activeServants.length}/5`);
+    console.log(`  出战从者: ${this.activeServants.map(s => `${s.name}(${s.id})`).join(', ') || '无'}`);
+    
+    const servant = this.activeServants.find(s => s.id === servantId);
+    if (!servant) {
+      console.log(`  错误: 从者不存在于出战栏中`);
+      return false;
+    }
+    
+    // 记录撤销前的状态
+    const quantumBefore = this.quantum;
+    const saintQuartzBefore = this.saintQuartz;
+    const symbolStatesBefore = JSON.parse(JSON.stringify(this.symbolStates));
+    
+    // 撤销从者效果
+    this.removeServantEffect(servant);
+    
+    // 从出战栏移除
+    this.activeServants = this.activeServants.filter(s => s.id !== servantId);
+    
+    // 移回仓库
+    this.inventoryServants.push(servant);
+    
+    console.log(`  从者 ${servant.name} (${servant.id}) 已下场`);
+    console.log(`  当前出战从者数: ${this.activeServants.length}/5`);
+    console.log(`  仓库从者: ${this.inventoryServants.map(s => `${s.name}(${s.id})`).join(', ') || '无'}`);
+    
+    // 记录数值变化
+    if (this.quantum !== quantumBefore) {
+      console.log(`  量子变化: ${quantumBefore.toLocaleString()} → ${this.quantum.toLocaleString()} (${this.quantum - quantumBefore > 0 ? '+' : ''}${(this.quantum - quantumBefore).toLocaleString()})`);
+    }
+    if (this.saintQuartz !== saintQuartzBefore) {
+      console.log(`  圣晶石变化: ${saintQuartzBefore} → ${this.saintQuartz} (${this.saintQuartz - saintQuartzBefore > 0 ? '+' : ''}${this.saintQuartz - saintQuartzBefore})`);
+    }
+    
+    // 检查图像状态变化
+    Object.keys(this.symbolStates).forEach(symbolId => {
+      const before = symbolStatesBefore[symbolId];
+      const after = this.symbolStates[symbolId];
+      if (before && after) {
+        if (before.currentValue !== after.currentValue || before.currentWeight !== after.currentWeight) {
+          console.log(`  图像 ${symbolId}:`);
+          if (before.currentValue !== after.currentValue) {
+            console.log(`    倍率: ${before.currentValue.toLocaleString()} → ${after.currentValue.toLocaleString()} (${after.currentValue - before.currentValue > 0 ? '+' : ''}${(after.currentValue - before.currentValue).toLocaleString()})`);
+          }
+          if (before.currentWeight !== after.currentWeight) {
+            console.log(`    权重: ${before.currentWeight.toFixed(2)} → ${after.currentWeight.toFixed(2)} (${after.currentWeight - before.currentWeight > 0 ? '+' : ''}${(after.currentWeight - before.currentWeight).toFixed(2)})`);
+          }
+        }
+      }
+    });
+    
+    console.log(`  当前出战从者数: ${this.activeServants.length}/5\n`);
+    
+    return true;
+  }
+
+  // 应用回合结束效果（在开始新回合之前调用）
+  applyRoundEndEffects() {
+    // 奥博龙效果：回合结束时量子+200%
+    if (this.hasOberon && this.round > 0) {
+      const quantumBeforeOberon = this.quantum;
+      this.quantum = Math.floor(this.quantum * 3);  // +200% = *3
+      console.log(`\n[回合结束] 奥博龙效果触发: 量子+200%`);
+      console.log(`  量子变化: ${quantumBeforeOberon.toLocaleString()} → ${this.quantum.toLocaleString()} (+${(this.quantum - quantumBeforeOberon).toLocaleString()})\n`);
+    }
+  }
+
   // 开始新回合
   startNewRound() {
     const oldRound = this.round;
+    
+    // 在开始新回合之前，先应用回合结束效果（奥博龙等）
+    if (oldRound > 0) {
+      this.applyRoundEndEffects();
+    }
+    
     this.round++;
     console.log(`\n[开始新回合] 第${this.level}轮 第${oldRound}回合 → 第${this.round}回合`);
     this.resetTurnState();
@@ -583,12 +746,10 @@ class GameState {
   completeLevel() {
     const quantumBefore = this.quantum;
     
-    // 奥博龙效果：回合结束时量子+200%（在检查目标之前应用）
-    if (this.hasOberon) {
-      const quantumBeforeOberon = this.quantum;
-      this.quantum = Math.floor(this.quantum * 3);  // +200% = *3
-      console.log(`\n[完成轮次] 奥博龙效果触发: 量子+200%`);
-      console.log(`  量子变化: ${quantumBeforeOberon.toLocaleString()} → ${this.quantum.toLocaleString()} (+${(this.quantum - quantumBeforeOberon).toLocaleString()})\n`);
+    // 奥博龙效果：如果当前回合是最后一回合，需要在完成轮次前触发回合结束效果
+    // （因为 startNewRound 不会在最后一回合后被调用）
+    if (this.hasOberon && this.round > 0 && this.round >= this.maxRounds) {
+      this.applyRoundEndEffects();
     }
     
     // 检查是否达到目标
@@ -706,6 +867,18 @@ class GameState {
 
   // 获取游戏报表数据
   getGameReport() {
+    // 计算累计奖励（基于完成的轮数）
+    let totalRewardETH = 0;
+    const completedLevels = this.level - 1; // 当前level是下一轮，所以已完成的是level-1
+    
+    if (completedLevels > 0) {
+      // 前5轮：每轮0.01 ETH
+      const firstFiveRewards = Math.min(completedLevels, 5) * 0.01;
+      // 5轮后：每轮0.05 ETH
+      const postFiveRewards = Math.max(0, completedLevels - 5) * 0.05;
+      totalRewardETH = firstFiveRewards + postFiveRewards;
+    }
+    
     return {
       level: this.level,
       finalQuantum: this.quantum,
@@ -713,7 +886,9 @@ class GameState {
       activeServants: this.activeServants.map(s => s.name),
       inventoryServants: this.inventoryServants.map(s => s.name),
       isGameOver: this.isGameOver,
-      isLevelComplete: this.isLevelComplete
+      isLevelComplete: this.isLevelComplete,
+      completedLevels: completedLevels,
+      calculatedRewardETH: totalRewardETH
     };
   }
 

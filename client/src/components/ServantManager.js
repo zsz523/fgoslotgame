@@ -74,6 +74,42 @@ function ServantManager({ sessionId, gameState, onUpdate, show, onToggle }) {
     }
   };
 
+  const handleDeactivateServant = async (servantId) => {
+    try {
+      console.log('[前端] 从者下场:', servantId);
+      console.log('[前端] 当前状态:', {
+        activeServants: gameState.activeServants?.map(s => s.name).join(', ') || '无',
+        activeCount: gameState.activeServants?.length || 0,
+        inventoryServants: gameState.inventoryServants?.map(s => `${s.name}(${s.id})`).join(', ') || '无'
+      });
+      const response = await axios.post(`${API_BASE_URL}/game/${sessionId}/servant/deactivate`, { servantId });
+      console.log('[前端] 从者下场成功:', {
+        activeServants: response.data.gameState?.activeServants?.map(s => s.name).join(', '),
+        activeCount: response.data.gameState?.activeServants?.length,
+        inventoryServants: response.data.gameState?.inventoryServants?.map(s => s.name).join(', ')
+      });
+      if (onUpdate) {
+        await onUpdate();
+        console.log('[前端] 从者下场合状态已更新');
+      } else {
+        console.error('[前端] onUpdate 未定义！');
+      }
+    } catch (error) {
+      console.error('从者下场失败:', error);
+      if (error.response) {
+        console.error('错误响应:', error.response.data);
+        // 如果是400错误，说明下场失败（从者不存在于出战栏）
+        if (error.response.status === 400) {
+          alert('下场失败：从者不存在于出战栏');
+        } else {
+          alert('下场失败：' + (error.response.data?.error || '未知错误'));
+        }
+      } else {
+        alert('下场失败：网络错误');
+      }
+    }
+  };
+
   const handleRefreshShop = async () => {
     try {
       console.log('[前端] 刷新商店');
@@ -245,6 +281,12 @@ function ServantManager({ sessionId, gameState, onUpdate, show, onToggle }) {
                   <div className="servant-name">{servant.name}</div>
                   <div className="servant-effect">{servant.description || servant.effectType}</div>
                   <div className="active-badge">已出战</div>
+                  <button
+                    className="btn-deactivate"
+                    onClick={() => handleDeactivateServant(servant.id)}
+                  >
+                    下场
+                  </button>
                 </div>
               ))
             )}

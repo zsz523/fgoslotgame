@@ -4,22 +4,40 @@
 }
 
 .probability-panel h3 {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   text-align: center;
-  font-size: 16px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .symbol-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  align-items: stretch;
 }
 
 .symbol-item {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 8px;
-  border-radius: 6px;
-  border: 2px solid transparent;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  padding: 18px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 180px;
+}
+
+.symbol-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.15) 100%);
 }
 
 .symbol-item.negative {
@@ -30,66 +48,246 @@
 .symbol-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  min-height: 50px;
+  flex-shrink: 0;
+}
+
+.symbol-header-left {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  gap: 12px;
+}
+
+.symbol-image-wrapper {
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
-  margin-bottom: 4px;
+  justify-content: center;
+}
+
+.symbol-name-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
 }
 
 .symbol-image {
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
-  margin-right: 6px;
-  border-radius: 4px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.weight-badge {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  align-self: flex-start;
+}
+
+.weight-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.weight-value {
+  font-size: 13px;
+  color: #ffd700;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .symbol-icon {
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   color: white;
-  margin-right: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+  position: relative;
 }
 
 .symbol-name {
   font-weight: bold;
-  font-size: 12px;
+  font-size: 16px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .negative-badge {
-  background: #ff6b6b;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ef4444 100%);
   color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 
 .symbol-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  font-size: 11px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  flex: 1;
+  align-content: start;
 }
 
 .stat-row {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  min-height: 70px;
+  text-align: center;
+}
+
+.stat-row:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
 
 .stat-label {
-  opacity: 0.8;
-  font-size: 10px;
+  opacity: 0.9;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .stat-value {
   font-weight: bold;
-  font-size: 12px;
+  font-size: 18px;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  font-family: 'Courier New', monospace;
+  line-height: 1.2;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+@media (max-width: 768px) {
+  .probability-panel h3 {
+    font-size: 20px;
+  }
+  
+  .symbol-list {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  
+  .symbol-item {
+    padding: 15px;
+    min-height: 170px;
+  }
+  
+  .symbol-header {
+    min-height: 45px;
+    margin-bottom: 14px;
+  }
+  
+  .symbol-image,
+  .symbol-icon {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .symbol-name-wrapper {
+    gap: 5px;
+  }
+  
+  .weight-badge {
+    padding: 3px 6px;
+    gap: 4px;
+  }
+  
+  .weight-label {
+    font-size: 10px;
+  }
+  
+  .weight-value {
+    font-size: 12px;
+  }
+  
+  .symbol-name {
+    font-size: 15px;
+  }
+  
+  .stat-row {
+    min-height: 65px;
+    padding: 8px 6px;
+    gap: 6px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+  
+  .stat-value {
+    font-size: 16px;
+  }
+  
+  .negative-badge {
+    font-size: 11px;
+    padding: 4px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .symbol-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .symbol-stats {
+    gap: 8px;
+  }
+  
+  .stat-row {
+    padding: 6px;
+  }
 }
